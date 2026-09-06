@@ -27,8 +27,8 @@ DATA = Path(__file__).parent / "data"
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--epochs", type=int, default=40)
-    ap.add_argument("--sft-epochs", type=int, default=120)
+    ap.add_argument("--epochs", type=int, default=120)
+    ap.add_argument("--sft-epochs", type=int, default=150)
     ap.add_argument("--rank", type=int, default=8)
     args = ap.parse_args()
     device = "cpu"
@@ -44,8 +44,8 @@ def main() -> None:
     pre = pack_corpus(tok, general, block_len=64)
     pre_train, pre_val = split(pre, 0.15)
     torch.manual_seed(0)
-    model = TinyGPT(tok.vocab_size, d=96, n_heads=4, n_layers=2)
-    cfg = TrainConfig(epochs=args.epochs, batch_size=16, lr=3e-3, log_every=1000)
+    model = TinyGPT(tok.vocab_size, d=128, n_heads=4, n_layers=2)
+    cfg = TrainConfig(epochs=args.epochs, batch_size=16, lr=3e-3, log_every=100000)
     r = train(model, pre_train, pre_val, cfg, log=lambda m: None)
     print(f"[pretrain] train_loss={r['final_loss']:.4f} val_loss={r['val_loss']:.4f} "
           f"steps={r['steps']} time={r['seconds']}s")
@@ -64,22 +64,23 @@ def main() -> None:
 
     # 3b. LoRA SFT (qkv + fc1 + fc2 heads' projections)
     torch.manual_seed(1)
-    lora_model = TinyGPT(tok.vocab_size, d=96, n_heads=4, n_layers=2)
+    lora_model = TinyGPT(tok.vocab_size, d=128, n_heads=4, n_layers=2)
     lora_model.load_state_dict(model.state_dict())
     inject_lora(lora_model, target_modules=("qkv", "proj", "fc1", "fc2"), r=args.rank, alpha=2 * args.rank)
     mark_only_lora_trainable(lora_model)
     ratio = trainable_ratio(lora_model)
-    sft_cfg = TrainConfig(epochs=args.sft_epochs, batch_size=8, lr=8e-3, log_every=100000)
+    sft_cfg = TrainConfig(epochs=args.sft_epochs, batch_size=8, lr=1e-2, log_every=100000)
     r2 = train(lora_model, sft_train, sft_val, sft_cfg, log=lambda m: None)
     results[f"LoRA SFT (r={args.rank})"] = {
         "val_loss": round(r2["val_loss"], 4), "trainable%": round(ratio * 100, 2),
     }
 
-    # 3c. full SFT
+    # 3c. full SFT (lower LR: every weight moving on 12 samples overfits fast)
     torch.manual_seed(1)
-    full_model = TinyGPT(tok.vocab_size, d=96, n_heads=4, n_layers=2)
+    full_model = TinyGPT(tok.vocab_size, d=128, n_heads=4, n_layers=2)
     full_model.load_state_dict(model.state_dict())
-    r3 = train(full_model, sft_train, sft_val, sft_cfg, log=lambda m: None)
+    sft_cfg_full = TrainConfig(epochs=args.sft_epochs, batch_size=8, lr=2e-3, log_every=100000)
+    r3 = train(full_model, sft_train, sft_val, sft_cfg_full, log=lambda m: None)
     results["full SFT"] = {"val_loss": round(r3["val_loss"], 4), "trainable%": 100.0}
 
     print(json.dumps(results, indent=2, ensure_ascii=False))

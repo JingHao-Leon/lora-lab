@@ -8,10 +8,10 @@ LoRA matrices A/B stay in fp32. Forward dequantizes on the fly, so any backend
 
 from __future__ import annotations
 
+import math
+
 import torch
 import torch.nn as nn
-
-from .lora import LoRALinear
 
 # 16 quantization levels, information-theoretically optimal for N(0,1) weights
 NF4_LEVELS = [
@@ -72,6 +72,23 @@ def quantize_model_nf4(model: nn.Module, block_size: int = 64) -> nn.Module:
     return model
 
 
+class QLoRALinear(nn.Module):
+    """NF4-frozen base + fp32 LoRA path — the QLoRA building block."""
+
+    def __init__(self, base: NF4Linear, r: int = 8, alpha: float = 16.0):
+        super().__init__()
+        self.base = base
+        self.r, self.alpha = r, alpha
+        self.scaling = alpha / r
+        self.lora_A = nn.Parameter(torch.zeros(r, base.in_features))
+        self.lora_B = nn.Parameter(torch.zeros(base.out_features, r))
+        nn.init.kaiming_uniform_(self.lora_A, a=math.sqrt(5))
+        # B=0 at init → output identical to the quantized base
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.base(x) + x @ self.lora_A.T @ self.lora_B.T * self.scaling
+
+
 def inject_qlora(model: nn.Module, target_modules: tuple[str, ...] = ("qkv", "proj"),
                  r: int = 8, alpha: float = 16.0) -> nn.Module:
     """Wrap target (already-NF4) linears with fp32 LoRA paths."""
@@ -79,17 +96,7 @@ def inject_qlora(model: nn.Module, target_modules: tuple[str, ...] = ("qkv", "pr
     for name, module in model.named_modules():
         for child_name, child in list(module.named_children()):
             if any(t in child_name for t in target_modules) and isinstance(child, NF4Linear):
-                proxy = nn.Linear(child.in_features, child.out_features, bias=False)
-                # a parameter-free shell so LoRALinear's shape math works; the
-                # real compute goes through the NF4 path below
-                adapter = LoRALinear(proxy, r=r, alpha=alpha)
-                adapter.base = child  # type: ignore[assignment]
-                adapter.forward = _nf4_lora_forward  # type: ignore[assignment]
-                setattr(module, child_name, adapter)
+                setattr(module, child_name, QLoRALinear(child, r=r, alpha=alpha))
                 replaced.append(child_name)
     assert replaced, f"no NF4 module matched targets {target_modules}"
     return model
-
-
-def _nf4_lora_forward(self, x: torch.Tensor) -> torch.Tensor:
-    return self.base(x) + self.dropout(x) @ self.lora_A.T @ self.lora_B.T * self.scaling

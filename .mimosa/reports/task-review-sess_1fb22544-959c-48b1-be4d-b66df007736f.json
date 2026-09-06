@@ -1,0 +1,369 @@
+{
+  "schema_version": "mimosa-task-review/v2",
+  "run_id": "20260906T143024615Z-93263-a96e57cf669e",
+  "run_status": "inconclusive",
+  "errors": [
+    {
+      "stage": "baseline",
+      "target": ".",
+      "reason": "baseline_partial: baseline capture had enumeration or snapshot errors"
+    }
+  ],
+  "coverage": {
+    "schema_version": "mimosa-hook-coverage/v1",
+    "status": "partial",
+    "scope": "hook_observed_diff",
+    "baseline": {
+      "complete": false,
+      "captured_files": 3,
+      "candidate_limit": 5000,
+      "truncated": false,
+      "enumeration_error_count": 0,
+      "snapshot_error_count": 17,
+      "compensated_target_count": 3
+    },
+    "change_tracking": {
+      "touched_observed": 3,
+      "touched_retained": 3,
+      "truncated": false,
+      "bash_mutation": true,
+      "bash_discovered": 3,
+      "bash_discovery_limit": 80,
+      "bash_discovery_truncated": false
+    },
+    "candidates": {
+      "eligible_files": 3,
+      "selected_files": 3,
+      "limit": 20,
+      "truncated": false
+    },
+    "scanning": {
+      "required_files": 3,
+      "scanned_files": 3,
+      "skipped_files": 0,
+      "failed_files": 0,
+      "project_checks_required": 0,
+      "project_checks_completed": 0
+    },
+    "notification": {
+      "eligible_findings": 0,
+      "detailed_findings": 0,
+      "detail_limit": 3,
+      "truncated": false
+    },
+    "reason_counts": {
+      "baseline_partial": 1,
+      "project_check_failed": 1
+    },
+    "reasons": [
+      {
+        "code": "baseline_partial",
+        "stage": "baseline",
+        "target": ".",
+        "detail": "baseline capture had enumeration or snapshot errors",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "baseline",
+        "target": ".",
+        "detail": "baseline_partial: baseline capture had enumeration or snapshot errors",
+        "affects_completion": true
+      }
+    ],
+    "reasons_truncated": false
+  },
+  "generated_at": "2026-09-06T14:30:24.615Z",
+  "session_id": "sess_1fb22544-959c-48b1-be4d-b66df007736f",
+  "target": ".",
+  "revision": "bf04495b80bf443df982f73b5859162fc24a0fd1",
+  "rules_version": "unavailable",
+  "diff_hash": "8630c26ad5850106893a560d22960c057310998eac5a71f37e1ed5484b8fe54a",
+  "diff": {
+    "algorithm": "sha256",
+    "changed_file_count": 3,
+    "changed_files": [
+      {
+        "file": "lora_lab/qlora.py",
+        "ranges": [
+          {
+            "start": 11,
+            "end": 12
+          },
+          {
+            "start": 75,
+            "end": 91
+          },
+          {
+            "start": 99,
+            "end": 99
+          }
+        ],
+        "before_hash": "0a73e37e45706b5646d1acdc9bece4e9586301e79dc5a49c9a65ab4eef9d0830",
+        "after_hash": "6509b8c43d1fcc7389b2c7b71f087e39c1b95cc0b2abb388c4f1acabbfee9ac7"
+      },
+      {
+        "file": "tests/test_qlora_data.py",
+        "ranges": [
+          {
+            "start": 18,
+            "end": 19
+          },
+          {
+            "start": 83,
+            "end": 86
+          }
+        ],
+        "before_hash": "a31f44fc7e72949de29f95c9e6820ec328589d138a002a6940deb91b53035eeb",
+        "after_hash": "6ed3205733b902d34c193a38b91cb3d4074be6cb3c0b82a498c94fc80629797b"
+      },
+      {
+        "file": "train.py",
+        "ranges": [
+          {
+            "start": 30,
+            "end": 31
+          },
+          {
+            "start": 47,
+            "end": 48
+          },
+          {
+            "start": 67,
+            "end": 67
+          },
+          {
+            "start": 72,
+            "end": 72
+          },
+          {
+            "start": 78,
+            "end": 78
+          },
+          {
+            "start": 80,
+            "end": 80
+          },
+          {
+            "start": 82,
+            "end": 83
+          }
+        ],
+        "before_hash": "4ff3ea5f119244b5106d82dc3a389c048877335de89cb1173b7993e4083bea83",
+        "after_hash": "4bdb45b1120140e4000f0e41db3d2554abb3cf3ffd71812a177ef7b976c35ab5"
+      }
+    ]
+  },
+  "timing": {
+    "started_at": "2026-09-06T14:30:23.612Z",
+    "completed_at": "2026-09-06T14:30:24.615Z",
+    "duration_ms": 1003,
+    "measurement": "hook_wall_clock"
+  },
+  "tokens": {
+    "input": 0,
+    "output": 0,
+    "total": 0,
+    "model_calls": 0,
+    "measurement": "known-zero"
+  },
+  "telemetry": {
+    "schemaVersion": "mimosa-gate-telemetry/v1",
+    "profile": "gate",
+    "operation": "Stop",
+    "outcome": "partial/INCONCLUSIVE",
+    "latencyMs": 1003,
+    "peakMemoryBytes": 187351040,
+    "memoryMeasurement": "max-observed-process-rss",
+    "scannedFiles": 3,
+    "cache": {
+      "hits": 0,
+      "misses": 0,
+      "measurement": "not-applicable"
+    },
+    "denyCount": 0,
+    "tokens": {
+      "input": 0,
+      "output": 0,
+      "total": 0,
+      "modelCalls": 0,
+      "measurement": "known-zero"
+    }
+  },
+  "finding_count": 0,
+  "rewake_finding_count": 0,
+  "evidence_boundary": {
+    "scan": "candidate",
+    "static_fix_verification": "observed_static_only",
+    "runtime_verification": "not_performed"
+  },
+  "finding_events": [
+    {
+      "finding_id": "mimosa-c92d2cbfbea33509f1ed2c01",
+      "file": "",
+      "line": 44,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "SQL 注入",
+      "status": "blocked",
+      "decision": "deny",
+      "at": "2026-09-06T13:05:24.601Z",
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "e04ccae4aedc4b6c867e3193327240aef3735cccff6dab4b2d57f9d10430f549",
+        "runtime_oracle": false
+      }
+    },
+    {
+      "finding_id": "mimosa-c92d2cbfbea33509f1ed2c01",
+      "file": "",
+      "line": 52,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "SQL 注入",
+      "status": "blocked",
+      "decision": "deny",
+      "at": "2026-09-06T13:05:37.270Z",
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "e04ccae4aedc4b6c867e3193327240aef3735cccff6dab4b2d57f9d10430f549",
+        "runtime_oracle": false
+      }
+    },
+    {
+      "finding_id": "mimosa-3f03d0f7539b5566d2650505",
+      "file": "",
+      "line": 6,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "SQL 注入",
+      "status": "blocked",
+      "decision": "deny",
+      "at": "2026-09-06T13:05:49.454Z",
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "8e9ce1bdcb1e73acdf048a2b87c296099eedde0a88031ccd66356684675fc395",
+        "runtime_oracle": false
+      }
+    },
+    {
+      "finding_id": "mimosa-c92d2cbfbea33509f1ed2c01",
+      "file": "",
+      "line": 52,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "SQL 注入",
+      "status": "fixed_candidate",
+      "decision": "repair_observed",
+      "at": "2026-09-06T13:06:11.143Z",
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "e04ccae4aedc4b6c867e3193327240aef3735cccff6dab4b2d57f9d10430f549",
+        "candidate_before_evidence_hash": "e04ccae4aedc4b6c867e3193327240aef3735cccff6dab4b2d57f9d10430f549",
+        "post_change_evidence_hash_at_previous_location": "7720c85d481b73f7659f4500fb614587e7ea7fd3496582969dcf8de071b0924e",
+        "runtime_oracle": false,
+        "verification": {
+          "method": "mimosa-posttool-static-rescan",
+          "finding_absent": true,
+          "runtime_oracle": false
+        }
+      }
+    },
+    {
+      "finding_id": "mimosa-c92d2cbfbea33509f1ed2c01",
+      "file": "",
+      "line": 52,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "SQL 注入",
+      "status": "static_verified",
+      "decision": "static_rescan_passed",
+      "at": "2026-09-06T13:06:11.143Z",
+      "evidence": {
+        "kind": "static_scan",
+        "boundary": "observed",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "e04ccae4aedc4b6c867e3193327240aef3735cccff6dab4b2d57f9d10430f549",
+        "candidate_before_evidence_hash": "e04ccae4aedc4b6c867e3193327240aef3735cccff6dab4b2d57f9d10430f549",
+        "post_change_evidence_hash_at_previous_location": "7720c85d481b73f7659f4500fb614587e7ea7fd3496582969dcf8de071b0924e",
+        "runtime_oracle": false,
+        "verification": {
+          "method": "mimosa-posttool-static-rescan",
+          "finding_absent": true,
+          "runtime_oracle": false
+        }
+      }
+    },
+    {
+      "finding_id": "mimosa-3f03d0f7539b5566d2650505",
+      "file": "",
+      "line": 6,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "SQL 注入",
+      "status": "fixed_candidate",
+      "decision": "repair_observed",
+      "at": "2026-09-06T13:06:11.143Z",
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "8e9ce1bdcb1e73acdf048a2b87c296099eedde0a88031ccd66356684675fc395",
+        "candidate_before_evidence_hash": "8e9ce1bdcb1e73acdf048a2b87c296099eedde0a88031ccd66356684675fc395",
+        "post_change_evidence_hash_at_previous_location": "e98b1ef8c905ca7881ab778fdd7ac7001d0bb818527b22a1bc7321b3198135da",
+        "runtime_oracle": false,
+        "verification": {
+          "method": "mimosa-posttool-static-rescan",
+          "finding_absent": true,
+          "runtime_oracle": false
+        }
+      }
+    },
+    {
+      "finding_id": "mimosa-3f03d0f7539b5566d2650505",
+      "file": "",
+      "line": 6,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "SQL 注入",
+      "status": "static_verified",
+      "decision": "static_rescan_passed",
+      "at": "2026-09-06T13:06:11.143Z",
+      "evidence": {
+        "kind": "static_scan",
+        "boundary": "observed",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "8e9ce1bdcb1e73acdf048a2b87c296099eedde0a88031ccd66356684675fc395",
+        "candidate_before_evidence_hash": "8e9ce1bdcb1e73acdf048a2b87c296099eedde0a88031ccd66356684675fc395",
+        "post_change_evidence_hash_at_previous_location": "e98b1ef8c905ca7881ab778fdd7ac7001d0bb818527b22a1bc7321b3198135da",
+        "runtime_oracle": false,
+        "verification": {
+          "method": "mimosa-posttool-static-rescan",
+          "finding_absent": true,
+          "runtime_oracle": false
+        }
+      }
+    }
+  ],
+  "findings": [],
+  "artifacts": {
+    "immutable_report": ".mimosa/reports/task-review-sess_1fb22544-959c-48b1-be4d-b66df007736f-20260906T143024615Z-93263-a96e57cf669e.json",
+    "latest_report": ".mimosa/reports/task-review-sess_1fb22544-959c-48b1-be4d-b66df007736f.json",
+    "history_summary": ".mimosa/history/run-20260906T143024615Z-93263-a96e57cf669e.json"
+  }
+}

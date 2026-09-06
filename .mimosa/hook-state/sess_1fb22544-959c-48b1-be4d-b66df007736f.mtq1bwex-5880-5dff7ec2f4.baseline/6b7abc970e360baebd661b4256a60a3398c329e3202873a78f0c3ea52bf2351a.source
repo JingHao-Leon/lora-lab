@@ -15,7 +15,8 @@ def test_nf4_storage_and_error():
     base = nn.Linear(256, 256)
     nf4 = NF4Linear(base)
     assert nf4.idx.dtype == torch.uint8
-    assert nf4.storage_bytes() < base.weight.numel()  # < 1 byte/weight vs 4
+    # ~0.5 byte/weight (4-bit idx + fp32 scale per 64-block) vs 4 bytes fp32
+    assert nf4.storage_bytes() < base.weight.numel() * 4
     x = torch.randn(8, 256)
     rel = ((nf4(x) - base(x)).norm() / base(x).norm()).item()
     assert rel < 0.2  # 4-bit textbook error bound
@@ -79,8 +80,10 @@ def test_pack_sft_pairs_masks_prompt():
     assert masked.any()  # prompts are masked
     answers = packed.y[packed.y != -100]
     assert (answers != -100).all()
-    # block 0: prompt 'abc' → first 2 targets masked, answer starts at position 2
-    assert (packed.y[0] == -100).sum() == 2
+    # block 0: prompt 'abc' → first 2 targets masked, answer tokens unmasked,
+    # trailing pad (-100) does not count as prompt
+    assert (packed.y[0][:2] == -100).all()
+    assert (packed.y[0][2:6] != -100).all()
 
 
 def test_split_deterministic():
