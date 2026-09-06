@@ -5,6 +5,15 @@ description = "LoRA / QLoRA / SFT from scratch: low-rank adapters, NF4 base, min
 requires-python = ">=3.10"
 dependencies = ["torch>=2.2"]
 
+[project.optional-dependencies]
+gpu = [
+    "transformers>=4.44",
+    "peft>=0.12",
+    "datasets>=2.20",
+    "bitsandbytes>=0.43",
+    "accelerate>=0.33",
+]
+
 [dependency-groups]
 dev = ["pytest>=8.0"]
 
