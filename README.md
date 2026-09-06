@@ -2,7 +2,7 @@
 
 **不看 PEFT 源码，亲手写出 LoRA 的数学、QLoRA 的 NF4 存储、SFT 的 prompt 掩码与训练循环——然后在 CPU 上用真实训练数据对比 LoRA SFT vs 全参 SFT vs 不微调。**
 
-[![tests](https://img.shields.io/badge/tests-15%20passed-brightgreen)]()
+[![tests](https://img.shields.io/badge/tests-17%20passed-brightgreen)]()
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)]()
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
@@ -77,7 +77,7 @@ print(f"{trainable_ratio(model):.1%} params trainable")  # e.g. 0.4%
 # merged = module.merge()
 ```
 
-## 🧮 LoRA 一页纸（面试可讲版）
+## 🧮 LoRA 一页纸（原理速览）
 
 - **为什么低秩有效**：微调时权重更新 ΔW 的本征维度远小于参数量——任务信息是低秩的
 - **为什么 B=0 初始化**：保证训练起点 = 预训练模型，不破坏已有能力
