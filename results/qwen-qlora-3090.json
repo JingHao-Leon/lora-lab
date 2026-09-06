@@ -1,0 +1,80 @@
+{
+  "model": "Qwen/Qwen2.5-1.5B-Instruct",
+  "dataset": "belle",
+  "samples": 3000,
+  "epochs": 2,
+  "rank": 16,
+  "val_loss_before": 1.1876,
+  "val_loss_after": 0.8386,
+  "history": [
+    {
+      "step": 20,
+      "loss": 1.0021
+    },
+    {
+      "step": 40,
+      "loss": 0.6832
+    },
+    {
+      "step": 60,
+      "loss": 1.3523
+    },
+    {
+      "step": 80,
+      "loss": 0.7184
+    },
+    {
+      "step": 100,
+      "loss": 1.2543
+    },
+    {
+      "step": 120,
+      "loss": 0.8071
+    },
+    {
+      "step": 140,
+      "loss": 0.994
+    },
+    {
+      "step": 160,
+      "loss": 1.3038
+    },
+    {
+      "step": 180,
+      "loss": 0.8328
+    },
+    {
+      "step": 200,
+      "loss": 0.7727
+    },
+    {
+      "step": 220,
+      "loss": 0.667
+    },
+    {
+      "step": 240,
+      "loss": 0.7914
+    },
+    {
+      "step": 260,
+      "loss": 0.6481
+    },
+    {
+      "step": 280,
+      "loss": 0.787
+    },
+    {
+      "step": 300,
+      "loss": 0.6847
+    },
+    {
+      "step": 320,
+      "loss": 0.8482
+    },
+    {
+      "step": 340,
+      "loss": 0.6352
+    }
+  ],
+  "gpu": "NVIDIA GeForce RTX 3090"
+}
