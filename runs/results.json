@@ -1,0 +1,14 @@
+{
+  "baseline (no SFT)": {
+    "val_loss": 6.817,
+    "trainable%": 100.0
+  },
+  "LoRA SFT (r=8)": {
+    "val_loss": 5.913,
+    "trainable%": 9.85
+  },
+  "full SFT": {
+    "val_loss": 6.0719,
+    "trainable%": 100.0
+  }
+}

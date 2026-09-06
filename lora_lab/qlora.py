@@ -1,0 +1,102 @@
+"""QLoRA: NF4-quantized base weights + LoRA adapters in higher precision.
+
+Mirrors the paper's storage contract (Dettmers et al. 2023): the frozen base
+linear is stored as 4-bit NF4 indices with fp32 per-block absmax scales, while
+LoRA matrices A/B stay in fp32. Forward dequantizes on the fly, so any backend
+(CPU included) can run it — the numerics match bitsandbytes at textbook scale.
+"""
+
+from __future__ import annotations
+
+import math
+
+import torch
+import torch.nn as nn
+
+# 16 quantization levels, information-theoretically optimal for N(0,1) weights
+NF4_LEVELS = [
+    -1.0, -0.6961928009986877, -0.5250730514526367, -0.39491748809814453,
+    -0.28444138169288635, -0.18477343022823334, -0.09105003625154495, 0.0,
+    0.07958029955625534, 0.16093020141124725, 0.24611230194568634, 0.33791524171829224,
+    0.44070982933044434, 0.5626170039176941, 0.7229568362236023, 1.0,
+]
+
+
+def _nf4_lut(device: torch.device) -> torch.Tensor:
+    return torch.tensor(NF4_LEVELS, dtype=torch.float32, device=device)
+
+
+class NF4Linear(nn.Module):
+    """nn.Linear look-alike whose weight lives as NF4 indices."""
+
+    def __init__(self, base: nn.Linear, block_size: int = 64):
+        super().__init__()
+        self.in_features, self.out_features = base.in_features, base.out_features
+        self.block_size = block_size
+        w = base.weight.detach().float()
+        flat = w.reshape(-1)
+        pad = (-flat.numel()) % block_size
+        blocks = torch.nn.functional.pad(flat, (0, pad)).view(-1, block_size)
+        absmax = blocks.abs().amax(dim=1, keepdim=True).clamp(min=1e-8)
+        normed = blocks / absmax
+        lut = _nf4_lut(w.device)
+        idx = (normed.unsqueeze(-1) - lut).abs().argmin(dim=-1)
+        self.register_buffer("idx", idx.to(torch.uint8))
+        self.register_buffer("absmax", absmax.squeeze(1))
+        self.register_buffer("pad", torch.tensor(pad))
+        self.register_buffer("orig_shape", torch.tensor(w.shape))
+        self.bias = None if base.bias is None else nn.Parameter(base.bias.detach().clone())
+
+    @property
+    def weight(self) -> torch.Tensor:  # dequantized view for inspection/merging
+        lut = _nf4_lut(self.idx.device)
+        blocks = lut[self.idx.long()] * self.absmax.unsqueeze(1)
+        flat = blocks.reshape(-1)
+        if int(self.pad):
+            flat = flat[: flat.numel() - int(self.pad)]
+        return flat.reshape(tuple(int(s) for s in self.orig_shape))
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return torch.nn.functional.linear(x, self.weight.to(x.dtype), self.bias)
+
+    def storage_bytes(self) -> int:
+        return self.idx.numel() + self.absmax.numel() * 4
+
+
+def quantize_model_nf4(model: nn.Module, block_size: int = 64) -> nn.Module:
+    """Swap every nn.Linear for an NF4Linear (embedding/LM-head untouched)."""
+    for name, module in model.named_modules():
+        for child_name, child in list(module.named_children()):
+            if isinstance(child, nn.Linear):
+                setattr(module, child_name, NF4Linear(child, block_size=block_size))
+    return model
+
+
+class QLoRALinear(nn.Module):
+    """NF4-frozen base + fp32 LoRA path — the QLoRA building block."""
+
+    def __init__(self, base: NF4Linear, r: int = 8, alpha: float = 16.0):
+        super().__init__()
+        self.base = base
+        self.r, self.alpha = r, alpha
+        self.scaling = alpha / r
+        self.lora_A = nn.Parameter(torch.zeros(r, base.in_features))
+        self.lora_B = nn.Parameter(torch.zeros(base.out_features, r))
+        nn.init.kaiming_uniform_(self.lora_A, a=math.sqrt(5))
+        # B=0 at init → output identical to the quantized base
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.base(x) + x @ self.lora_A.T @ self.lora_B.T * self.scaling
+
+
+def inject_qlora(model: nn.Module, target_modules: tuple[str, ...] = ("qkv", "proj"),
+                 r: int = 8, alpha: float = 16.0) -> nn.Module:
+    """Wrap target (already-NF4) linears with fp32 LoRA paths."""
+    replaced = []
+    for name, module in model.named_modules():
+        for child_name, child in list(module.named_children()):
+            if any(t in child_name for t in target_modules) and isinstance(child, NF4Linear):
+                setattr(module, child_name, QLoRALinear(child, r=r, alpha=alpha))
+                replaced.append(child_name)
+    assert replaced, f"no NF4 module matched targets {target_modules}"
+    return model

@@ -1,0 +1,40 @@
+the model learns to predict the next character in a sequence
+attention lets every token look at every earlier token
+training a language model means minimizing the cross entropy loss
+gradients flow backward through the computational graph
+the optimizer updates the weights a small step at a time
+a transformer is made of layers of attention and feed forward blocks
+language models assign probabilities to sequences of tokens
+the learning rate schedule starts warm and decays like a cosine
+dropout randomly hides activations so the model does not overfit
+weights are stored as floating point numbers in memory
+a gpu can multiply large matrices much faster than a cpu
+batching many samples together makes training more efficient
+the loss goes down slowly at first and then drops quickly
+early stopping keeps the model from memorizing the training set
+validation loss tells us if the model is really learning
+a tokenizer turns raw text into numbers the model can read
+embeddings map each token to a dense vector
+the output layer scores every word in the vocabulary
+sampling with temperature controls how random the generated text is
+a lower temperature makes the model more confident and repetitive
+fine tuning teaches an old model new tricks with a small dataset
+low rank updates change a big matrix with two small ones
+quantization squeezes weights into fewer bits to save memory
+four bit quantization keeps most of the accuracy of a model
+an adapter sits beside the frozen weights and learns the task
+merging an adapter back into the weights costs nothing at inference
+a mask on the prompt keeps the loss focused on the answer
+packing joins short samples into long blocks for efficiency
+warmup steps protect the optimizer from early noise
+clipping gradients stops them from exploding in long training
+a checkpoint saves the model so training can resume later
+the validation set catches overfitting before it is too late
+char level tokens make every word a sequence of letters
+word level tokens are longer but need a bigger vocabulary
+the model reads the prompt and continues it one token at a time
+greedy decoding always picks the most likely next token
+beam search keeps several candidates and picks the best overall
+repetition is the curse of small language models
+more data beats a fancier architecture almost every time
+the best model is the one that ships to users
