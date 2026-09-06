@@ -1,14 +1,14 @@
 {
   "schemaVersion": "mimosa-hook-status/v1",
-  "recordedAt": "2026-09-06T17:35:16.555Z",
+  "recordedAt": "2026-09-06T19:05:23.434Z",
   "sessionId": "sess_1fb22544-959c-48b1-be4d-b66df007736f",
   "event": "PostToolUse",
-  "toolName": "Edit",
-  "file": "README.md",
-  "outcome": "clear",
-  "coverage": "complete",
+  "toolName": "Write",
+  "file": "/Users/ahs/.zcode/workspace/default/ai-projects/llm-perf-lab/tests/test_speculative.py",
+  "outcome": "inconclusive",
+  "coverage": "partial",
   "findingCount": 0,
-  "durationMs": 2,
+  "durationMs": 3,
   "hostState": "hook_complete",
   "reportHint": ".mimosa/reports/"
 }

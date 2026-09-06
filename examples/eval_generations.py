@@ -1,0 +1,78 @@
+"""Before/after generation comparison for the QLoRA fine-tuned adapter.
+
+Loads the base model and the adapter, answers the same math questions with
+greedy decoding, and writes a side-by-side table for the README.
+
+    uv run python examples/eval_generations.py [--adapter runs/qwen-qlora/adapter]
+Requires a CUDA GPU (or re-run train_qwen_gpu.py first to produce the adapter).
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import sys
+from pathlib import Path
+
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
+QUESTIONS = [
+    "一元二次方程 x^2 - 5x + 6 = 0 的解是什么？请给出过程。",
+    "计算 (123 + 456) * 2 - 78，写出步骤。",
+    "一个三角形底边长 6，高 4，面积是多少？",
+    "把 0.375 表示为最简分数。",
+    "小明有 24 个苹果，分给 6 个朋友每人一样多，每人得几个？",
+    "9 乘以 12 再减去 27 等于多少？",
+    "一根绳子长 10 米，剪掉 2.5 米，还剩多少米？",
+    "100 以内最大的质数是多少？",
+]
+
+
+def answer(model, tok, question: str, max_new_tokens: int = 200) -> str:
+    import torch
+
+    text = (f"<|im_start|>user\n{question}<|im_end|>\n<|im_start|>assistant\n")
+    ids = tok(text, return_tensors="pt").input_ids.cuda()
+    out = model.generate(ids, max_new_tokens=max_new_tokens, do_sample=False,
+                         pad_token_id=tok.eos_token_id)
+    return tok.decode(out[0][ids.shape[1]:], skip_special_tokens=True).strip()
+
+
+def main() -> None:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--model", default="Qwen/Qwen2.5-1.5B-Instruct")
+    ap.add_argument("--adapter", default="runs/qwen-qlora/adapter")
+    args = ap.parse_args()
+
+    import torch
+    from peft import PeftModel
+    from transformers import AutoModelForCausalLM, AutoTokenizer
+
+    assert torch.cuda.is_available(), "needs a CUDA GPU"
+    assert Path(args.adapter).exists(), f"adapter not found: {args.adapter} (train first)"
+
+    tok = AutoTokenizer.from_pretrained(args.model)
+    base = AutoModelForCausalLM.from_pretrained(
+        args.model, torch_dtype=torch.bfloat16, device_map="auto")
+    tuned = PeftModel.from_pretrained(
+        AutoModelForCausalLM.from_pretrained(
+            args.model, torch_dtype=torch.bfloat16, device_map="auto"),
+        args.adapter)
+    base.eval(), tuned.eval()
+
+    rows = []
+    for q in QUESTIONS:
+        a_before = answer(base, tok, q)
+        a_after = answer(tuned, tok, q)
+        rows.append({"question": q, "before": a_before, "after": a_after})
+        print(f"\nQ: {q}\n--- before: {a_before[:120]}\n--- after : {a_after[:120]}")
+
+    out = Path("results/generations_compare.json")
+    out.parent.mkdir(exist_ok=True)
+    out.write_text(json.dumps(rows, ensure_ascii=False, indent=2))
+    print(f"\nsaved: {out}")
+
+
+if __name__ == "__main__":
+    main()
