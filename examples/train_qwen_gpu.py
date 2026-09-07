@@ -46,6 +46,7 @@ def main() -> None:
     ap.add_argument("--samples", type=int, default=3000)
     ap.add_argument("--epochs", type=int, default=2)
     ap.add_argument("--rank", type=int, default=16)
+    ap.add_argument("--batch-size", type=int, default=4)
     ap.add_argument("--smoke", action="store_true", help="100 samples, 1 epoch sanity run")
     args = ap.parse_args()
     if args.smoke:
@@ -68,6 +69,8 @@ def main() -> None:
     model = AutoModelForCausalLM.from_pretrained(
         args.model, quantization_config=bnb, device_map="auto"
     )
+    if "7B" in args.model or "14B" in args.model:  # trade compute for VRAM headroom
+        model.gradient_checkpointing_enable()
     model = get_peft_model(model, LoraConfig(
         r=args.rank, lora_alpha=2 * args.rank, lora_dropout=0.05,
         target_modules=["q_proj", "k_proj", "v_proj", "o_proj"],
@@ -103,7 +106,7 @@ def main() -> None:
 
     from torch.utils.data import DataLoader, TensorDataset
 
-    loader = DataLoader(TensorDataset(xtr, ytr), batch_size=4, shuffle=True)
+    loader = DataLoader(TensorDataset(xtr, ytr), batch_size=args.batch_size, shuffle=True)
     opt = torch.optim.AdamW([p for p in model.parameters() if p.requires_grad],
                             lr=2e-4, weight_decay=0.01)
     total_steps = args.epochs * len(loader) // 4  # grad_accum=4
@@ -162,12 +165,13 @@ def main() -> None:
     except UnicodeEncodeError:  # never let console encoding kill the run
         print("sample skipped: console encoding cannot render it")
 
-    out_dir = Path("runs/qwen-qlora")
+    model_short = args.model.split("/")[-1]  # e.g. Qwen2.5-7B-Instruct
+    out_dir = Path("runs") / model_short
     out_dir.mkdir(parents=True, exist_ok=True)
     model.save_pretrained(out_dir / "adapter")
     (out_dir / "results.json").write_text(json.dumps({
         "model": args.model, "dataset": args.dataset, "samples": len(pairs),
-        "epochs": args.epochs, "rank": args.rank,
+        "epochs": args.epochs, "rank": args.rank, "batch_size": args.batch_size,
         "val_loss_before": round(v0, 4), "val_loss_after": round(v1, 4),
         "history": history,
         "gpu": torch.cuda.get_device_name(0),
