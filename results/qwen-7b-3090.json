@@ -1,0 +1,153 @@
+{
+  "model": "Qwen/Qwen2.5-7B-Instruct",
+  "dataset": "belle",
+  "samples": 3000,
+  "epochs": 2,
+  "rank": 16,
+  "batch_size": 2,
+  "val_loss_before": 1.5022,
+  "val_loss_after": 0.7707,
+  "history": [
+    {
+      "step": 20,
+      "loss": 0.822
+    },
+    {
+      "step": 40,
+      "loss": 0.8298
+    },
+    {
+      "step": 60,
+      "loss": 0.762
+    },
+    {
+      "step": 80,
+      "loss": 0.7648
+    },
+    {
+      "step": 100,
+      "loss": 0.6379
+    },
+    {
+      "step": 120,
+      "loss": 0.6846
+    },
+    {
+      "step": 140,
+      "loss": 1.1908
+    },
+    {
+      "step": 160,
+      "loss": 0.8901
+    },
+    {
+      "step": 180,
+      "loss": 0.954
+    },
+    {
+      "step": 200,
+      "loss": 0.7029
+    },
+    {
+      "step": 220,
+      "loss": 0.6304
+    },
+    {
+      "step": 240,
+      "loss": 1.3063
+    },
+    {
+      "step": 260,
+      "loss": 0.9641
+    },
+    {
+      "step": 280,
+      "loss": 0.6487
+    },
+    {
+      "step": 300,
+      "loss": 0.5212
+    },
+    {
+      "step": 320,
+      "loss": 1.3245
+    },
+    {
+      "step": 340,
+      "loss": 0.444
+    },
+    {
+      "step": 360,
+      "loss": 0.5016
+    },
+    {
+      "step": 380,
+      "loss": 0.9187
+    },
+    {
+      "step": 400,
+      "loss": 0.5877
+    },
+    {
+      "step": 420,
+      "loss": 0.7017
+    },
+    {
+      "step": 440,
+      "loss": 0.8776
+    },
+    {
+      "step": 460,
+      "loss": 0.6701
+    },
+    {
+      "step": 480,
+      "loss": 1.0455
+    },
+    {
+      "step": 500,
+      "loss": 0.4755
+    },
+    {
+      "step": 520,
+      "loss": 0.6188
+    },
+    {
+      "step": 540,
+      "loss": 1.2302
+    },
+    {
+      "step": 560,
+      "loss": 0.8943
+    },
+    {
+      "step": 580,
+      "loss": 0.7959
+    },
+    {
+      "step": 600,
+      "loss": 0.355
+    },
+    {
+      "step": 620,
+      "loss": 0.7259
+    },
+    {
+      "step": 640,
+      "loss": 0.9885
+    },
+    {
+      "step": 660,
+      "loss": 0.8501
+    },
+    {
+      "step": 680,
+      "loss": 1.1126
+    },
+    {
+      "step": 700,
+      "loss": 0.599
+    }
+  ],
+  "gpu": "NVIDIA GeForce RTX 3090"
+}

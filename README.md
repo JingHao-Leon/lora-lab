@@ -39,6 +39,15 @@ LoRA SFT: Q: what is loraA: lora adds small trainable matrices to
 
 训练损失轨迹（每 20 步记录）：1.00 → 0.68 → … → 0.64（完整曲线在 results 文件里）。**3090 24GB 跑 1.5B QLoRA 显存余量充足，同配置可上 7B（权重 ~5GB）**。
 
+### 规模对照：同数据同管线，1.5B vs 7B（3090）
+
+| 模型 | 训练配置 | 显存峰值 | 验证损失 | 降幅 | 耗时 |
+|---|---|---|---|---|---|
+| Qwen2.5-1.5B-Instruct | r=16 · bs4 | 21.7 GB | 1.1876 → 0.8386 | -29.4% | 15.3 min |
+| Qwen2.5-7B-Instruct | r=16 · bs2 · 梯度检查点 | 13.3 GB | **1.5022 → 0.7707** | **-48.7%** | ~55 min |
+
+> 同一套管线只改了模型名和 batch size（2 vs 4）。7B 的基座更强（before loss 1.50 vs 1.19 是"更差的起点"——它对这套小样本的分布更保守），微调后反而降得更深。数据：`results/qwen-7b-3090.json`。
+
 微调前后生成对比（`examples/eval_generations.py`，同一道题贪心解码）：
 
 > **Q: 计算 (123 + 456) × 2 − 78，写出步骤。**
