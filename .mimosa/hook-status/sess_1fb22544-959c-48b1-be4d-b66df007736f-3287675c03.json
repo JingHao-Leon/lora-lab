@@ -1,14 +1,14 @@
 {
   "schemaVersion": "mimosa-hook-status/v1",
-  "recordedAt": "2026-09-07T05:57:54.909Z",
+  "recordedAt": "2026-09-07T08:32:13.359Z",
   "sessionId": "sess_1fb22544-959c-48b1-be4d-b66df007736f",
   "event": "PostToolUse",
   "toolName": "Edit",
-  "file": "examples/train_qwen_gpu.py",
+  "file": "/Users/ahs/.zcode/workspace/default/ai-projects/rag-forge/README.md",
   "outcome": "clear",
   "coverage": "complete",
   "findingCount": 0,
-  "durationMs": 5,
+  "durationMs": 4,
   "hostState": "hook_complete",
   "reportHint": ".mimosa/reports/"
 }
