@@ -1,14 +1,14 @@
 {
   "schemaVersion": "mimosa-hook-status/v1",
-  "recordedAt": "2026-09-06T19:05:23.434Z",
+  "recordedAt": "2026-09-07T03:55:58.129Z",
   "sessionId": "sess_1fb22544-959c-48b1-be4d-b66df007736f",
   "event": "PostToolUse",
-  "toolName": "Write",
-  "file": "/Users/ahs/.zcode/workspace/default/ai-projects/llm-perf-lab/tests/test_speculative.py",
+  "toolName": "Edit",
+  "file": "/Users/ahs/.zcode/workspace/default/ai-projects/llm-perf-lab/examples/speculative_qwen_gpu.py",
   "outcome": "inconclusive",
   "coverage": "partial",
   "findingCount": 0,
-  "durationMs": 3,
+  "durationMs": 4,
   "hostState": "hook_complete",
   "reportHint": ".mimosa/reports/"
 }
