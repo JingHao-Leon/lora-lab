@@ -39,6 +39,14 @@ LoRA SFT: Q: what is loraA: lora adds small trainable matrices to
 
 训练损失轨迹（每 20 步记录）：1.00 → 0.68 → … → 0.64（完整曲线在 results 文件里）。**3090 24GB 跑 1.5B QLoRA 显存余量充足，同配置可上 7B（权重 ~5GB）**。
 
+微调前后生成对比（`examples/eval_generations.py`，同一道题贪心解码）：
+
+> **Q: 计算 (123 + 456) × 2 − 78，写出步骤。**
+> 微调前：学术 LaTeX 腔，`\( (123 + 456) \times 2 - 78 \)`…（列公式为主）
+> 微调后：干净的逐步计算——`123 + 456 = 579 → 579 × 2 = 1158 → 1158 − 78 = 1080`（Belle 语料的格式风格被成功注入）
+
+完整 8 题对照在 `results/generations_compare.json`：微调主要改变**输出风格与步骤结构**（分步、竖式化、去 LaTeX），这正是 SFT 注入领域格式的直接证据。
+
 ## ✨ 从零实现了什么
 
 | 模块 | 内容 | 验证方式 |
