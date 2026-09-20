@@ -1,10 +1,14 @@
+<div align="center">
+
 # lora-lab · 从零实现 LoRA / QLoRA / SFT
 
 **不看 PEFT 源码，亲手写出 LoRA 的数学、QLoRA 的 NF4 存储、SFT 的 prompt 掩码与训练循环——然后在 CPU 上用真实训练数据对比 LoRA SFT vs 全参 SFT vs 不微调。**
 
 [![tests](https://img.shields.io/badge/tests-17%20passed-brightgreen)]()
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)]()
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green)](LICENSE)
+
+</div>
 
 ## 📊 实测对比（本机 CPU · 2 层 × 128d 字符级 GPT · 复现：`uv run python train.py`）
 
@@ -101,6 +105,35 @@ print(f"{trainable_ratio(model):.1%} params trainable")  # e.g. 0.4%
 - **α/r 缩放**：把更新幅度与解耦的秩超参分离，调 r 不需要重调学习率
 - **QLoRA 省的是什么**：NF4 存基座（~4.5 bit/权重 vs 16bit），优化器状态和梯度只存在于 LoRA 参数上
 - **prompt 掩码为什么重要**：不掩码 = 模型花容量学"复述问题"；掩码 = 全部梯度流向答案生成
+
+## ❓ 常见问题（FAQ）
+
+**Q1：QLoRA 和全参微调到底差在哪？为什么值得用？**
+全参微调要为所有权重保存梯度和 AdamW 优化器状态（约 2-3 倍参数量的额外显存）；QLoRA 把基座冻结成 NF4（约 4.5 bit/权重），梯度和优化器状态只存在于低秩 fp32 适配器上。实测 1.5B 模型适配器只有 ~26 MB（全参要存 3 GB），7B 在 3090 24GB 上显存峰值仅 13.3 GB。
+
+**Q2：7B 为什么只要 ~55 分钟？**
+因为反向传播只更新 LoRA 参数（r=16），基座权重只做前向；加上 bs=2 × 梯度累积和梯度检查点，3000 条 × 2 epochs 共约 700 步。同数据下 1.5B（bs=4）只要 15.3 分钟。
+
+**Q3：能换其他基座模型吗？**
+可以。`examples/train_qwen_gpu.py --model <HF模型名>` 接受任意 transformers 支持的 causal LM（需 bitsandbytes NF4 + PEFT 支持）；本仓从零实现的 `lora_lab.lora.inject_lora` 则能注入任何含 `nn.Linear` 的模型，README 快速开始里有示例。
+
+**Q4：既然"不看 PEFT 源码"，为什么 examples 里用了 PEFT？**
+两条线各司其职：`lora_lab/` 是从零实现的教学核心（数学、NF4、prompt 掩码，17 个测试逐项验证数值契约）；`examples/train_qwen_gpu.py` 是生产级配方（transformers + PEFT + bitsandbytes），概念与本仓实现一一对应，用来在真模型上复现同一套机制。
+
+**Q5：为什么 CPU 小实验里 LoRA（-13.3%）反而赢了全参（-11.0%）？**
+20 条样本的小数据上，全参更新更容易过拟合——这正是 QLoRA 论文的核心论点之一。但注意模型是字符级玩具规模，"答对"来自对训练对的记忆，本实验证明的是机制与数值契约，不是涌现能力。
+
+**Q6：所有数字怎么复现？**
+CPU 对比表：`uv run python train.py`（~10s）；测试：`uv run pytest`（17 passed）；1.5B QLoRA：`examples/train_qwen_gpu.py --samples 3000 --epochs 2`（3090 实测 15.3 min / 21.7 GB）；7B：同命令加 `--model Qwen/Qwen2.5-7B-Instruct --batch-size 2`。结果 JSON 在 `results/`。
+
+## ⚠️ 局限与已知问题（Limitations）
+
+- **仅单卡验证**：所有真模型实验只在单张 RTX 3090 24GB 上跑过，未在 A100/H100/4090 或多卡（DDP/DeepSpeed）环境复现，显存与耗时不代表其他硬件的表现。
+- **模型规模与任务单一**：真模型上限 7B，数据只有 Belle 数学指令 3000 条单一任务；未验证更大模型、更长序列、多语言/多任务下的表现，验证损失基于单一固定切分。
+- **仅覆盖文本 SFT**：只涉及 causal LM 的 LoRA/QLoRA/SFT；不含多模态、embedding 模型微调，也没有 DPO/RLHF 等对齐训练阶段。
+- **教学实现非生产级**：`lora_lab/` 的 NF4 是教学简化版，没有 bitsandbytes 的分页优化器、双重量化等工程优化；生产训练请走 `examples/` 的 PEFT + bitsandbytes 路线。
+- **未做系统消融与稳定性分析**：超参以 r=16 为主，没有对 r/α/学习率做系统扫描；结果为单次运行、未报告多种子方差（7B 训练损失曲线波动明显，见 `results/qwen-7b-3090.json` 的 history）。
+- **文本生成评估是定性的**：微调前后对比（`examples/eval_generations.py`）为 8 题贪心解码人工对照，没有 BLEU/ROUGE 等自动指标。
 
 ## License
 

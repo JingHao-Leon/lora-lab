@@ -7,3 +7,4 @@ dist/
 build/
 runs/
 .DS_Store
+.mimosa/
