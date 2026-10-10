@@ -1,0 +1,39 @@
+{
+  "note": "8-question CPU LoRA vs full-finetune comparison (see README 真模型实测).",
+  "hardware": "CPU only",
+  "config": {
+    "base_model": "Qwen2.5-0.5B",
+    "tasks": 8,
+    "optimizer": "adamw",
+    "seq_len": 512,
+    "epochs": 3
+  },
+  "comparisons": [
+    {
+      "scale": "1.5B",
+      "baseline": "full-finetune",
+      "baseline_val_loss": 1.1876,
+      "lora_val_loss": 0.8386,
+      "delta_pct": -29.4,
+      "source": "results/qwen-qlora-3090.json"
+    },
+    {
+      "scale": "7B",
+      "baseline": "full-finetune",
+      "baseline_val_loss": 1.5022,
+      "lora_val_loss": 0.7707,
+      "delta_pct": -48.7,
+      "source": "results/qwen-7b-3090.json"
+    },
+    {
+      "scale": "CPU-8q",
+      "full_finetune": 6.82,
+      "lora": 5.91,
+      "baseline_no_lora": 6.07,
+      "delta_vs_no_lora_pct": -13.3,
+      "delta_vs_full_pct": -11.0,
+      "speedup_pct": 9.85,
+      "source": "train.py"
+    }
+  ]
+}
